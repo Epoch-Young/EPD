@@ -126,7 +126,25 @@ async function epdWriteImage(data, step = 'bw') {
   const count = Math.round(data.length / chunkSize);
   let chunkIdx = 0;
   let noReplyCount = interleavedCount;
+  const bar = document.getElementById("progress1");
+  const text = document.getElementById("progressText");
+  const container = document.querySelector(".progress-container");
+  let progress = 0;
 
+  const interval = setInterval(() => {
+    progress = Math.round(((chunkIdx + 1)/(count + 1)*100 ));
+    if (progress >= 100) {
+      progress = 100;
+      clearInterval(interval);
+      container.classList.add("progress-complete");
+      text.textContent = "Done!";
+      setTimeout(() => {
+        container.classList.remove("progress-complete");
+      }, 1500);
+    }
+    bar.style.width = `${progress}%`;
+    text.textContent = `${Math.round(progress)}%`;
+  }, 100);
   for (let i = 0; i < data.length; i += chunkSize) {
     let currentTime = (new Date().getTime() - startTime) / 1000.0;
     setStatus(`${step == 'bw' ? '黑白' : '颜色'}块: ${chunkIdx + 1}/${count + 1}, 总用时: ${currentTime}s`);
