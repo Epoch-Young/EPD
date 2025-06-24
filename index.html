@@ -1,226 +1,632 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>电子墨水屏蓝牙控制器</title>
-	<link rel="stylesheet" href="css/main.css?v=20250519">
+    <style>
+        /* 基础变量定义 */
+        :root {
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --secondary-color: #6c757d;
+            --secondary-hover: #5c636a;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --card-bg: #fff;
+            --card-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --section-gap: 1.5rem;
+            --control-gap: 0.75rem;
+            --border-radius: 6px;
+            --mobile-padding: 10px;
+        }
+
+        /* 全局样式 */
+        body {
+            margin: 0;
+            padding: var(--mobile-padding);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 var(--mobile-padding);
+        }
+
+        h3 {
+            text-align: center;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #ddd;
+            color: var(--primary-color);
+            font-size: 1.3rem;
+        }
+
+        /* 卡片式布局 */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            padding: 1.2rem;
+            margin-bottom: var(--section-gap);
+            overflow: hidden;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+
+        /* 网格布局 */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        /* 控件组 */
+        .control-group {
+            margin-bottom: var(--control-gap);
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        /* 输入控件 */
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 0.95rem;
+            transition: border-color 0.15s;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
+        }
+
+        /* 按钮样式 - 优化触控体验 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.7rem 1rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            min-height: 40px; /* 确保按钮足够大以便触摸 */
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--secondary-hover);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.7rem;
+            flex-wrap: wrap;
+        }
+
+        /* 画布区域 */
+        .canvas-container {
+            margin-top: 1.2rem;
+        }
+
+        #canvas {
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            background-color: white;
+            touch-action: none; /* 防止触摸事件干扰画布操作 */
+        }
+
+        /* 工具栏 */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            padding: 0.8rem;
+            background: #f8f9fa;
+            border-radius: var(--border-radius);
+        }
+
+        .tool-section {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .tool-section label {
+            margin-bottom: 0;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        /* 日志区域 */
+        #log {
+            width: 100%;
+            height: 120px;
+            padding: 0.6rem;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-family: monospace;
+            font-size: 0.8rem;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .log-entry {
+            padding: 0.2rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .log-time {
+            color: #666;
+            margin-right: 0.5rem;
+        }
+
+        .log-action {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* 进度条 */
+        .progress-container {
+            width: 100%;
+            height: 18px;
+            background: #f0f0f0;
+            border-radius: 9px;
+            margin: 1rem 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4ca0af, #4a74c3);
+            width: 0%;
+            transition: width 0.4s ease-out;
+        }
+
+        .progress-text {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #333;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        /* 页脚 */
+        .footer {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* 调试模式 */
+        .debug {
+            display: none;
+        }
+
+        body.debug-mode .debug {
+            display: block;
+        }
+
+        /* 响应式调整 - 手机屏幕 */
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card {
+                padding: 1rem;
+            }
+            
+            .btn-group {
+                width: 100%;
+            }
+            
+            .btn {
+                flex: 1;
+            }
+            
+            .toolbar {
+                gap: 0.6rem;
+                padding: 0.6rem;
+            }
+            
+            .tool-section {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            #log {
+                height: 100px;
+            }
+            
+            .footer {
+                text-align: left;
+            }
+            
+            .footer-links {
+                justify-content: flex-start;
+            }
+        }
+
+        /* 更小屏幕的特殊优化 */
+        @media (max-width: 480px) {
+            h3 {
+                font-size: 1.2rem;
+            }
+            
+            .card-title {
+                font-size: 1rem;
+            }
+            
+            input[type="text"],
+            input[type="number"],
+            select {
+                padding: 0.5rem 0.6rem;
+                font-size: 0.9rem;
+            }
+            
+            .btn {
+                padding: 0.6rem 0.8rem;
+                font-size: 0.9rem;
+            }
+            
+            .tool-section {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.4rem;
+            }
+            
+            .tool-section label {
+                margin-bottom: 0.2rem;
+            }
+            
+            #font-family, #text-input {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            
+            .progress-container {
+                height: 16px;
+            }
+            
+            .progress-text {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <div class="main">
+    <div class="container">
         <h3>电子墨水屏蓝牙控制器</h3>
-        <fieldset>
-            <legend>蓝牙连接</legend>
-            <div class="flex-container">
-                <div class="flex-group">
-					<div class="btn">名称过滤<input id="namefilter" value="NRF_EPD"><br>
-                    <button id="connectbutton" type="button" class="primary" onclick="preConnect(namefilter.value)">连接</button>
-                    <button id="reconnectbutton" type="button" class="secondary" onclick="reConnect()">重连</button>
-					<button type="button" class="secondary" onclick="clearLog()">清空日志</button>
+        
+        <!-- 蓝牙连接区域 -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">蓝牙连接</h4>
+            </div>
+            
+            <div class="grid">
+                <!-- 连接控制组 -->
+                <div class="control-group">
+                    <label for="namefilter">设备名称过滤</label>
+                    <input id="namefilter" type="text" value="NRF_EPD">
+                    
+                    <div class="btn-group" style="margin-top: 0.75rem;">
+                        <button id="connectbutton" class="btn btn-primary" onclick="preConnect(namefilter.value)">连接设备</button>
+                        <button id="reconnectbutton" class="btn btn-secondary" onclick="reConnect()">重新连接</button>
+                        <button class="btn btn-secondary" onclick="clearLog()">清空日志</button>
+                    </div>
                 </div>
-				<div class="flex-group debug">
-					<label for="epddriver">驱动</label>
-					<select id="epddriver" onchange="updateDitcherOptions()">
-						<option value="01" data-color="blackWhiteColor" data-size="4.2_400_300">UC8176/UC8276(黑白)</option>
-						<option value="03" data-color="threeColor" data-size="4.2_400_300">UC8176/UC8276(三色)</option>
-						<option value="04" data-color="blackWhiteColor" data-size="4.2_400_300">SSD1619/SSD1683(黑白)</option>
-						<option value="02" data-color="threeColor" data-size="4.2_400_300">SSD1619/SSD1683(三色)</option>
-						<option value="05" data-color="fourColor" data-size="4.2_400_300">JD79668(四色)</option>
-						<option value="15" data-color="fourColor" data-size="3.5_384_184">JD79668(四色)</option>
-					</select>
-				</div>
-				<div class="flex-group debug">
-					<label for="epdpins">引脚</label>
-					<input id="epdpins" type="text" value="">
-					<button id="setDriverbutton" type="button" class="primary" onclick="setDriver()">确认</button>
-				</div>
-                <div class="flex-group">
-                    <button id="calendarmodebutton" type="button" class="primary" onclick="syncTime(1)">日历模式</button>
-                    <button id="clockmodebutton" type="button" class="primary" onclick="syncTime(2)">时钟模式</button>
-					<button id="clearscreenbutton" type="button" class="secondary" onclick="clearScreen()">清除屏幕</button>
+                
+                <!-- 驱动设置组 -->
+                <div class="control-group">
+                    <label for="epddriver">屏幕驱动</label>
+                    <select id="epddriver" onchange="updateDitcherOptions()">
+                        <option value="01" data-color="blackWhiteColor" data-size="4.2_400_300">UC8176/UC8276(黑白)</option>
+                        <option value="03" data-color="threeColor" data-size="4.2_400_300">UC8176/UC8276(三色)</option>
+                        <option value="04" data-color="blackWhiteColor" data-size="4.2_400_300">SSD1619/SSD1683(黑白)</option>
+                        <option value="02" data-color="threeColor" data-size="4.2_400_300">SSD1619/SSD1683(三色)</option>
+                        <option value="05" data-color="fourColor" data-size="4.2_400_300">JD79668(四色)</option>
+                        <option value="15" data-color="fourColor" data-size="3.5_384_184">JD79668(四色)</option>
+                    </select>
+                    
+                    <div class="control-group" style="margin-top: 0.75rem;">
+                        <label for="epdpins">驱动引脚</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input id="epdpins" type="text" style="flex: 1;">
+                            <button id="setDriverbutton" class="btn btn-primary" onclick="setDriver()">确认</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex-group debug">
-                    <input type="text" id="cmdTXT" value="">
-                    <button id="sendcmdbutton" type="button" class="primary" onclick="sendcmd()">发送命令</button>
+                
+                <!-- 模式控制组 -->
+                <div class="control-group">
+                    <label>显示模式</label>
+                    <div class="btn-group">
+                        <button id="calendarmodebutton" class="btn btn-primary" onclick="syncTime(1)">日历模式</button>
+                        <button id="clockmodebutton" class="btn btn-primary" onclick="syncTime(2)">时钟模式</button>
+                        <button id="clearscreenbutton" class="btn btn-secondary" onclick="clearScreen()">清除屏幕</button>
+                    </div>
+                    
+                    <div class="control-group debug" style="margin-top: 0.75rem;">
+                        <label for="cmdTXT">自定义命令</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" id="cmdTXT" style="flex: 1;">
+                            <button id="sendcmdbutton" class="btn btn-primary" onclick="sendcmd()">发送</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-			<div id="log"></div>
-        </fieldset>
-
-		<fieldset>
-        	<legend>蓝牙传图</legend>
-			<div class="flex-container">
-				<input type="file" id="image_file" onchange="updateImage(true)" accept=".png,.jpg,.bmp,.webp,.jpeg">
-			</div>
-			<div class="flex-container options">
-				<div class="flex-group debug">
-					<label for="canvasSize">画布尺寸：</label>
-					<select id="canvasSize" onchange="updateCanvasSize()">
-						<option value="1.54_152_152">1.54 (152x152)</option>
-						<option value="1.54_200_200">1.54 (200x200)</option>
-						<option value="2.13_212_104">2.13 (212x104)</option>
-						<option value="2.13_250_122">2.13 (250x122)</option>
-						<option value="2.66_296_152">2.66 (296x152)</option>
-						<option value="2.9_296_128">2.9 (296x128)</option>
-						<option value="2.9_384_168">2.9 (384x168)</option>
-						<option value="3.5_384_184" selected>3.5 (384x184)</option>
-						<option value="3.7_416_240">3.7 (416x240)</option>
-						<option value="3.97_800_480">3.97 (800x480)</option>
-						<option value="4.2_400_300" >4.2 (400x300)</option>
-						<option value="5.79_792_272">5.79 (792x272)</option>
-						<option value="7.5_800_480">7.5 (800x480)</option>
-						
-						<option value="9.7_960_680">9.7 (960x680)</option>
-						<option value="10.2_960_640">10.2 (960x640)</option>
-						<option value="10.85_1360_480">10.85 (1360x480)</option>
-						<option value="11.6_960_640">11.6 (960x640)</option>
-						<option value="4E_600_400">4E (600x400)</option>
-						<option value="7.3E6">7.3E6 (480x800)</option>
-					</select>
-				</div>
-				<div class="flex-group debug">
-					<label for="ditherMode">颜色模式：</label>
-					<select id="ditherMode" onchange="updateImage(false)">
-						<option value="blackWhiteColor">双色(黑白)</option>
-						<option value="threeColor">三色(黑白红)</option>
-						<option value="BWY">三色(黑白黄)</option>
-						<option value="fourColor">四色(黑白红黄)</option>
-						<option value="sixColor">六色(黑白红黄蓝绿)</option>
-					</select>
-				</div>
-				<div class="flex-group">
-					<label for="ditherType">抖动算法：</label>
-					<select id="ditherType" onchange="updateImage(false)">
-						<option value="floydSteinberg">Floyd-Steinberg</option>
-						<option value="atkinson">Atkinson</option>
-						<option value="bayer">Bayer</option>
-						<option value="stucki">Stucki</option>
-						<option value="jarvis">Jarvis-Judice-Ninke</option>
-					</select>
-				</div>
-				<div class="flex-group">
-					<label for="ditherStrength">抖动强度：</label>
-					<input type="range" min="0" max="1" step="0.02" value="0.3" id="ditherStrength" oninput="updateImage(false)">
-				</div>
-				
-				<div class="flex-group">
-					<label for="brightness">亮度：</label>
-					<input type="range"  min="-1" max="1" step="0.02" value="0" id="brightness" oninput="updateImage(false)">
-				</div>
-				<div class="flex-group">
-					<label for="contrast">对比度：</label>
-					<input type="range" min="0.5" max="2" step="0.02" value="1.2" id="contrast" oninput="updateImage(false)">
-				</div>
-					<div class="flex-group">
-                    <label for="colourCheck">黑白图片填色:</label>
-                    <input type="checkbox" id="colorCheck" checked oninput="updateImage(false)">
-				</div>
-			</div>
-			<div class="flex-container options">
-				<div class="flex-group debug">
-					<label for="mtusize">MTU：</label>
-					<input type="number" id="mtusize" value="20" min="0" max="255">
-					<label for="interleavedcount">确认间隔：</label>
-					<input type="number" id="interleavedcount" value="50" min="0" max="500">
-				</div>
-			</div>
-			<div class="status-bar">
-				<div class="progress-container">
-					<div class="progress-bar" id="progress1"></div>
-					<div class="progress-text" id="progressText">0%</div>
-				</div>
-				<b>状态：</b><span id="status"></span>
-			</div>
-			<div class="flex-container">
-				<div class="flex-group">
-					<button id="clearcanvasbutton" type="button" class="secondary" onclick="clearCanvas()">清除画布</button>
-					<button id="downloadArray" type="button" class="secondary debug" onclick="downloadDataArray()">下载数组</button>
-					<button id="sendimgbutton" type="button" class="primary" onclick="sendimg()">发送图片</button>
-				</div>
-			</div>
-			<div class="canvas-container">
-				<div class="canvas-title"></div>
-				<canvas id="canvas" width="400" height="300"></canvas>
-				<div class="flex-container canvas-tools">
-					<div class="flex-group">
-						<button id="brush-mode" title="画笔" class="tool-button">✏️</button>
-						<button id="eraser-mode" title="橡皮擦" class="tool-button">🧽</button>
-						<button id="text-mode" title="添加文字" class="tool-button">T</button>
-					</div>
-					<div class="flex-group">
-						<label for="brush-color">画笔：</label>
-						<select id="brush-color">
+            
+            <div id="log"></div>
+        </div>
+        
+        <!-- 图片传输区域 -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">图片传输</h4>
+            </div>
+            
+            <div class="control-group">
+                <label for="image_file">选择图片文件</label>
+                <input type="file" id="image_file" onchange="updateImage(true)" accept=".png,.jpg,.bmp,.webp,.jpeg">
+            </div>
+            
+            <div class="grid" style="margin-top: 1rem;">
+                <div class="control-group">
+                    <label for="canvasSize">画布尺寸</label>
+                    <select id="canvasSize" onchange="updateCanvasSize()">
+                        <option value="1.54_152_152">1.54英寸 (152x152)</option>
+                        <option value="1.54_200_200">1.54英寸 (200x200)</option>
+                        <option value="2.13_212_104">2.13英寸 (212x104)</option>
+                        <option value="2.13_250_122">2.13英寸 (250x122)</option>
+                        <option value="2.66_296_152">2.66英寸 (296x152)</option>
+                        <option value="2.9_296_128">2.9英寸 (296x128)</option>
+                        <option value="2.9_384_168">2.9英寸 (384x168)</option>
+                        <option value="3.5_384_184" selected>3.5英寸 (384x184)</option>
+                        <option value="3.7_416_240">3.7英寸 (416x240)</option>
+                        <option value="3.97_800_480">3.97英寸 (800x480)</option>
+                        <option value="4.2_400_300">4.2英寸 (400x300)</option>
+                        <option value="5.79_792_272">5.79英寸 (792x272)</option>
+                        <option value="7.5_800_480">7.5英寸 (800x480)</option>
+                        <option value="9.7_960_680">9.7英寸 (960x680)</option>
+                        <option value="10.2_960_640">10.2英寸 (960x640)</option>
+                        <option value="10.85_1360_480">10.85英寸 (1360x480)</option>
+                        <option value="11.6_960_640">11.6英寸 (960x640)</option>
+                        <option value="4E_600_400">4E (600x400)</option>
+                        <option value="7.3E6">7.3E6 (480x800)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="ditherMode">颜色模式</label>
+                    <select id="ditherMode" onchange="updateImage(false)">
+                        <option value="blackWhiteColor">双色(黑白)</option>
+                        <option value="threeColor">三色(黑白红)</option>
+                        <option value="BWY">三色(黑白黄)</option>
+                        <option value="fourColor">四色(黑白红黄)</option>
+                        <option value="sixColor">六色(黑白红黄蓝绿)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="ditherType">抖动算法</label>
+                    <select id="ditherType" onchange="updateImage(false)">
+                        <option value="floydSteinberg">Floyd-Steinberg</option>
+                        <option value="atkinson">Atkinson</option>
+                        <option value="bayer">Bayer</option>
+                        <option value="stucki">Stucki</option>
+                        <option value="jarvis">Jarvis-Judice-Ninke</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="grid" style="margin-top: 0.5rem;">
+                <div class="control-group">
+                    <label for="ditherStrength">抖动强度: <span id="ditherStrengthValue">0.3</span></label>
+                    <input type="range" min="0" max="1" step="0.02" value="0.3" id="ditherStrength" 
+                           oninput="document.getElementById('ditherStrengthValue').textContent=this.value; updateImage(false)">
+                </div>
+                
+                <div class="control-group">
+                    <label for="brightness">亮度: <span id="brightnessValue">0</span></label>
+                    <input type="range" min="-1" max="1" step="0.02" value="0" id="brightness" 
+                           oninput="document.getElementById('brightnessValue').textContent=this.value; updateImage(false)">
+                </div>
+                
+                <div class="control-group">
+                    <label for="contrast">对比度: <span id="contrastValue">1.2</span></label>
+                    <input type="range" min="0.5" max="2" step="0.02" value="1.2" id="contrast" 
+                           oninput="document.getElementById('contrastValue').textContent=this.value; updateImage(false)">
+                </div>
+                
+                <div class="control-group">
+                    <label style="display: flex; align-items: center;">
+                        <input type="checkbox" id="colorCheck" checked oninput="updateImage(false)" style="margin-right: 0.5rem;">
+                        黑白图片填色
+                    </label>
+                </div>
+            </div>
+            
+            <div class="control-group debug" style="margin-top: 1rem;">
+                <div class="grid">
+                    <div class="control-group">
+                        <label for="mtusize">MTU大小</label>
+                        <input type="number" id="mtusize" value="20" min="0" max="255">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="interleavedcount">确认间隔</label>
+                        <input type="number" id="interleavedcount" value="50" min="0" max="500">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="progress-container" style="margin-top: 1.5rem;">
+                <div class="progress-bar" id="progress1"></div>
+                <div class="progress-text" id="progressText">0%</div>
+            </div>
+            
+            <div style="margin: 0.5rem 0; font-size: 0.9rem;">
+                <strong>状态：</strong><span id="status">准备就绪</span>
+            </div>
+            
+            <div class="btn-group" style="margin-top: 1rem;">
+                <button id="clearcanvasbutton" class="btn btn-secondary" onclick="clearCanvas()">清除画布</button>
+                <button id="downloadArray" class="btn btn-secondary debug" onclick="downloadDataArray()">下载数组</button>
+                <button id="sendimgbutton" class="btn btn-primary" onclick="sendimg()">发送图片</button>
+            </div>
+            
+            <div class="canvas-container">
+                <canvas id="canvas" width="400" height="300"></canvas>
+                
+                <div class="toolbar">
+                    <div class="tool-section">
+                        <label>绘图工具</label>
+                        <div class="btn-group">
+                            <button id="brush-mode" class="btn btn-secondary" title="画笔">✏️ 画笔</button>
+                            <button id="eraser-mode" class="btn btn-secondary" title="橡皮擦">🧽 橡皮</button>
+                            <button id="text-mode" class="btn btn-secondary" title="添加文字">T 文字</button>
+                        </div>
+                    </div>
+                    
+                    <div class="tool-section">
+                        <label for="brush-color">画笔颜色</label>
+                        <select id="brush-color" class="btn btn-secondary" style="padding: 0.4rem 0.5rem;">
                             <option value="#000000">黑色</option>
                             <option value="#FF0000">红色</option>
                             <option value="#FFFF00">黄色</option>
-							<option value="#00FF00">绿色</option>
-							<option value="#0000FF">蓝色</option>
+                            <option value="#00FF00">绿色</option>
+                            <option value="#0000FF">蓝色</option>
                             <option value="#FFFFFF">白色</option>
                         </select>
-						<label for="brush-size">粗细：</label>
-						<input type="number" id="brush-size" value="2" min="1" max="100">
-					</div>
-				</div>
-				<div class="flex-container canvas-tools">
-					<div class="flex-group text-tools">
-						<label for="font-family">字体：</label>
-						<select id="font-family">
-								<option value="Arial">Arial</option>
-								<option value="sans-serif">Sans-serif</option>
-								<option value="monospace">Monospace</option>
-								<option value="SimSun">宋体</option>
-								<option value="SimHei">黑体</option>
-								<option value="Microsoft Yahei">微软雅黑</option>
-								<option value="Microsoft JhengHei">微软正黑体</option>
-								<option value="KaiTi">楷体</option>
-								<option value="NSimSun">新宋体</option>
-								<option value="FangSong">仿宋</option>
-								<option value="YouYuan">幼圆</option>
-								<option value="LiSu">隶书</option>
-								<option value="STHeiti">华文黑体</option>
-								<option value="STXihei">华文细黑</option>
-								<option value="STKaiti">华文楷体</option>
-								<option value="STSong">华文宋体</option>
-								<option value="STFangsong">华文仿宋</option>
-								<option value="STZhongsong">华文中宋</option>
-								<option value="STHupo">华文琥珀</option>
-								<option value="STXinwei">华文新魏</option>
-								<option value="STLiti">华文隶书</option>
-								<option value="STXingkai">华文行楷</option>
-								<option value="FZShuTi">方正舒体</option>
-								<option value="FZYaoti">方正姚体</option>
-								<option value="PingFang SC">苹方</option>
-								<option value="Source Han Sans CN">思源黑体</option>
-								<option value="Source Han Serif SC">思源宋体</option>
-								<option value="WenQuanYi Micro Hei">文泉驿微米黑</option>
-							</optgroup>
-						</select>
-						<label for="font-size">大小：</label>
-						<input type="number" id="font-size" value="16" min="1" max="100">
-					</div>
-					<div class="flex-group text-tools">
-						<input type="text" id="text-input" placeholder="输入文字" style="width:150px">
-						<button id="text-bold" title="粗体">B</button>
-						<button id="text-italic" title="斜体">I</button>
-						<button id="add-text-btn" class="primary">添加文字</button>
-					</div>
-				</div>
-			</div>
-        </fieldset>
-		<div class="footer">
-			<span class="copy">&copy; 2025 tsl0922.</span>
-			<span class="links">
-				<a href="https://github.com/tsl0922/EPD-nRF5">Github</a>
-				<a href="https://qm.qq.com/q/SckzhfDxuu">交流群</a>
-				<a href="https://m.tb.cn/h.6HyQcD7?tk=RQvUVjGecdm">支持项目</a>
-				<a href="?debug=true" id="debug-toggle">开发模式</a>
-			</span>
-		</div>
+                    </div>
+                    
+                    <div class="tool-section">
+                        <label for="brush-size">画笔粗细</label>
+                        <input type="number" id="brush-size" value="2" min="1" max="100" style="width: 60px; padding: 0.4rem;">
+                    </div>
+                </div>
+                
+                <div class="toolbar" style="margin-top: 0.5rem;">
+                    <div class="tool-section">
+                        <label for="font-family">字体</label>
+                        <select id="font-family" style="min-width: 120px;">
+                            <option value="Arial">Arial</option>
+                            <option value="sans-serif">Sans-serif</option>
+                            <option value="monospace">Monospace</option>
+                            <option value="SimSun">宋体</option>
+                            <option value="SimHei">黑体</option>
+                            <option value="Microsoft Yahei">微软雅黑</option>
+                        </select>
+                    </div>
+                    
+                    <div class="tool-section">
+                        <label for="font-size">字号</label>
+                        <input type="number" id="font-size" value="16" min="1" max="100" style="width: 60px;">
+                    </div>
+                    
+                    <div class="tool-section">
+                        <input type="text" id="text-input" placeholder="输入文字" style="flex: 1; min-width: 120px;">
+                        <button id="text-bold" class="btn btn-secondary">B</button>
+                        <button id="text-italic" class="btn btn-secondary">I</button>
+                        <button id="add-text-btn" class="btn btn-primary">添加</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <span>&copy; 2025 tsl0922. 电子墨水屏蓝牙控制器</span>
+            <div class="footer-links">
+                <a href="https://github.com/tsl0922/EPD-nRF5">GitHub</a>
+                <a href="https://qm.qq.com/q/SckzhfDxuu">交流群</a>
+                <a href="https://m.tb.cn/h.6HyQcD7?tk=RQvUVjGecdm">支持项目</a>
+                <a href="?debug=true" id="debug-toggle">开发者模式</a>
+            </div>
+        </div>
     </div>
+
     <script type="text/javascript" src="js/dithering.js?v=20250519"></script>
     <script type="text/javascript" src="js/paint.js?v=20250519"></script>
     <script type="text/javascript" src="js/main.js?v=20250519"></script>
 </body>
-
 </html>
