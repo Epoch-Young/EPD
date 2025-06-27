@@ -2,10 +2,11 @@
 <html lang="zh-CN">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>电子墨水屏蓝牙控制器</title>
+    <link rel="stylesheet" href="css/main.css?v=20250519">
     <style>
-        /* 基础变量定义 */
+        /* 优化后的CSS样式 */
         :root {
             --primary-color: #0d6efd;
             --primary-hover: #0b5ed7;
@@ -15,37 +16,32 @@
             --danger-color: #dc3545;
             --card-bg: #fff;
             --card-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            --section-gap: 1rem;
-            --control-gap: 0.5rem;
+            --section-gap: 1.5rem;
+            --control-gap: 0.75rem;
             --border-radius: 6px;
-            --mobile-padding: 8px;
         }
 
-        /* 全局样式 */
         body {
             margin: 0;
-            padding: var(--mobile-padding);
+            padding: 20px;
             font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
             background-color: #f5f5f5;
             color: #333;
-            line-height: 1.5;
-            -webkit-tap-highlight-color: transparent;
-            font-size: 14px;
+            line-height: 1.6;
         }
 
         .container {
-            max-width: 100%;
+            max-width: 1000px;
             margin: 0 auto;
-            padding: 0 var(--mobile-padding);
+            padding: 0 15px;
         }
 
         h3 {
             text-align: center;
-            margin: 0.5rem 0;
+            margin-bottom: 1.5rem;
             padding-bottom: 0.5rem;
             border-bottom: 1px solid #ddd;
             color: var(--primary-color);
-            font-size: 1.2rem;
         }
 
         /* 卡片式布局 */
@@ -53,29 +49,34 @@
             background: var(--card-bg);
             border-radius: var(--border-radius);
             box-shadow: var(--card-shadow);
-            padding: 0.8rem;
+            padding: 1.5rem;
             margin-bottom: var(--section-gap);
-            overflow: hidden;
         }
 
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.8rem;
+            margin-bottom: 1.2rem;
         }
 
         .card-title {
             margin: 0;
-            font-size: 1rem;
+            font-size: 1.2rem;
             color: var(--primary-color);
         }
 
         /* 网格布局 */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 0.8rem;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* 控件组 */
@@ -85,8 +86,8 @@
 
         .control-group label {
             display: block;
-            margin-bottom: 0.3rem;
-            font-size: 0.85rem;
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
             color: #555;
         }
 
@@ -95,12 +96,11 @@
         input[type="number"],
         select {
             width: 100%;
-            padding: 0.5rem 0.6rem;
+            padding: 0.5rem 0.75rem;
             border: 1px solid #ddd;
             border-radius: var(--border-radius);
-            font-size: 0.85rem;
+            font-size: 1rem;
             transition: border-color 0.15s;
-            box-sizing: border-box;
         }
 
         input[type="text"]:focus,
@@ -111,20 +111,19 @@
             box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
         }
 
-        /* 按钮样式 - 优化触控体验 */
+        /* 按钮样式 */
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 0.5rem 0.8rem;
+            padding: 0.5rem 1rem;
             border: none;
             border-radius: var(--border-radius);
-            font-size: 0.85rem;
+            font-size: 0.95rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
             white-space: nowrap;
-            min-height: 36px;
         }
 
         .btn-primary {
@@ -153,7 +152,7 @@
 
         /* 画布区域 */
         .canvas-container {
-            margin-top: 0.8rem;
+            margin-top: 1.5rem;
         }
 
         #canvas {
@@ -164,16 +163,15 @@
             display: block;
             margin: 0 auto;
             background-color: white;
-            touch-action: none;
         }
 
         /* 工具栏 */
         .toolbar {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.6rem;
-            margin-top: 0.8rem;
-            padding: 0.6rem;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: 1rem;
             background: #f8f9fa;
             border-radius: var(--border-radius);
         }
@@ -181,38 +179,36 @@
         .tool-section {
             display: flex;
             align-items: center;
-            gap: 0.4rem;
-            flex-wrap: wrap;
+            gap: 0.75rem;
         }
 
         .tool-section label {
             margin-bottom: 0;
             font-weight: 500;
-            font-size: 0.85rem;
         }
 
         /* 日志区域 */
         #log {
             width: 100%;
-            height: 80px;
-            padding: 0.5rem;
+            height: 150px;
+            padding: 0.75rem;
             background: #f8f9fa;
             border: 1px solid #ddd;
             border-radius: var(--border-radius);
             font-family: monospace;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             overflow-y: auto;
-            margin-top: 0.8rem;
+            margin-top: 1rem;
         }
 
         .log-entry {
-            padding: 0.1rem 0;
+            padding: 0.2rem 0;
             border-bottom: 1px solid #eee;
         }
 
         .log-time {
             color: #666;
-            margin-right: 0.3rem;
+            margin-right: 0.5rem;
         }
 
         .log-action {
@@ -223,10 +219,10 @@
         /* 进度条 */
         .progress-container {
             width: 100%;
-            height: 16px;
+            height: 20px;
             background: #f0f0f0;
-            border-radius: 8px;
-            margin: 0.8rem 0;
+            border-radius: 10px;
+            margin: 1rem 0;
             overflow: hidden;
             position: relative;
         }
@@ -240,31 +236,29 @@
 
         .progress-text {
             position: absolute;
-            right: 6px;
+            right: 10px;
             top: 50%;
             transform: translateY(-50%);
             color: #333;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             font-weight: bold;
         }
 
         /* 页脚 */
         .footer {
             display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            margin-top: 1rem;
-            padding-top: 0.8rem;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
             border-top: 1px solid #eee;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             color: #666;
         }
 
         .footer-links {
             display: flex;
-            gap: 0.8rem;
-            margin-top: 0.6rem;
-            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .footer a {
@@ -285,83 +279,19 @@
             display: block;
         }
 
-        /* 响应式调整 - 手机屏幕 */
-        @media (max-width: 480px) {
-            .grid {
-                grid-template-columns: 1fr;
-                gap: 0.6rem;
-            }
-            
-            .card {
-                padding: 0.7rem;
-            }
-            
-            .btn {
-                flex: 1;
-                min-width: 80px;
-                font-size: 0.8rem;
-                padding: 0.4rem 0.6rem;
-            }
-            
+        /* 响应式调整 */
+        @media (max-width: 576px) {
             .tool-section {
                 width: 100%;
                 justify-content: space-between;
             }
             
-            #log {
-                height: 70px;
-            }
-            
-            .footer {
-                font-size: 0.75rem;
-            }
-            
-            .footer-links {
-                gap: 0.6rem;
-            }
-            
-            /* 更紧凑的布局 */
-            .control-group {
-                margin-bottom: 0.4rem;
-            }
-            
-            .card-header {
-                margin-bottom: 0.6rem;
-            }
-            
-            .canvas-container {
-                margin-top: 0.6rem;
-            }
-            
-            /* 调整画布大小 */
-            #canvas {
-                max-width: 100%;
-                max-height: 200px;
-            }
-        }
-
-        /* 小屏幕设备优化 */
-        @media (max-width: 360px) {
-            :root {
-                --mobile-padding: 6px;
+            .btn-group {
+                width: 100%;
             }
             
             .btn {
-                min-height: 32px;
-                font-size: 0.75rem;
-            }
-            
-            .card {
-                padding: 0.6rem;
-            }
-            
-            #canvas {
-                max-height: 180px;
-            }
-            
-            /* 隐藏非必要元素 */
-            .log-time {
-                display: none;
+                flex: 1;
             }
         }
     </style>
@@ -377,25 +307,60 @@
                 <h4 class="card-title">蓝牙连接</h4>
             </div>
             
-            <div class="control-group">
-                <label for="namefilter">设备名称过滤</label>
-                <input id="namefilter" type="text" value="NRF_EPD" style="margin-bottom: 0.6rem;">
+            <div class="grid">
+                <!-- 连接控制组 -->
+                <div class="control-group">
+                    <label for="namefilter">设备名称过滤</label>
+                    <input id="namefilter" type="text" value="NRF_EPD">
+                    
+                    <div class="btn-group" style="margin-top: 0.75rem;">
+                        <button id="connectbutton" class="btn btn-primary" onclick="preConnect(namefilter.value)">连接设备</button>
+                        <button id="reconnectbutton" class="btn btn-secondary" onclick="reConnect()">重新连接</button>
+                        <button class="btn btn-secondary" onclick="clearLog()">清空日志</button>
+                    </div>
+                </div>
                 
-                <div class="btn-group">
-                    <button id="connectbutton" class="btn btn-primary" onclick="preConnect(namefilter.value)">连接设备</button>
-                    <button id="reconnectbutton" class="btn btn-secondary" onclick="reConnect()">重新连接</button>
-                    <button class="btn btn-secondary" onclick="clearLog()">清空日志</button>
+                <!-- 驱动设置组 -->
+                <div class="control-group">
+                    <label for="epddriver">屏幕驱动</label>
+                    <select id="epddriver" onchange="updateDitcherOptions()">
+                        <option value="01" data-color="blackWhiteColor" data-size="4.2_400_300">UC8176/UC8276(黑白)</option>
+                        <option value="03" data-color="threeColor" data-size="4.2_400_300">UC8176/UC8276(三色)</option>
+                        <option value="04" data-color="blackWhiteColor" data-size="4.2_400_300">SSD1619/SSD1683(黑白)</option>
+                        <option value="02" data-color="threeColor" data-size="4.2_400_300">SSD1619/SSD1683(三色)</option>
+                        <option value="05" data-color="fourColor" data-size="4.2_400_300">JD79668(四色)</option>
+                        <option value="15" data-color="fourColor" data-size="3.5_384_184">JD79668(四色)</option>
+                    </select>
+                    
+                    <div class="control-group" style="margin-top: 0.75rem;">
+                        <label for="epdpins">驱动引脚</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input id="epdpins" type="text" style="flex: 1;">
+                            <button id="setDriverbutton" class="btn btn-primary" onclick="setDriver()">确认</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 模式控制组 -->
+                <div class="control-group">
+                    <label>显示模式</label>
+                    <div class="btn-group">
+                        <button id="calendarmodebutton" class="btn btn-primary" onclick="syncTime(1)">日历模式</button>
+                        <button id="clockmodebutton" class="btn btn-primary" onclick="syncTime(2)">时钟模式</button>
+                        <button id="clearscreenbutton" class="btn btn-secondary" onclick="clearScreen()">清除屏幕</button>
+                    </div>
+                    
+                    <div class="control-group debug" style="margin-top: 0.75rem;">
+                        <label for="cmdTXT">自定义命令</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" id="cmdTXT" style="flex: 1;">
+                            <button id="sendcmdbutton" class="btn btn-primary" onclick="sendcmd()">发送</button>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <div class="control-group" style="margin-top: 0.8rem;">
-                <label>显示模式</label>
-                <div class="btn-group">
-                    <button id="calendarmodebutton" class="btn btn-primary" onclick="syncTime(1)">日历模式</button>
-                    <button id="clockmodebutton" class="btn btn-primary" onclick="syncTime(2)">时钟模式</button>
-                    <button id="clearscreenbutton" class="btn btn-secondary" onclick="clearScreen()">清除屏幕</button>
-                </div>
-            </div>
+            <div id="log"></div>
         </div>
         
         <!-- 图片传输区域 -->
@@ -409,7 +374,7 @@
                 <input type="file" id="image_file" onchange="updateImage(true)" accept=".png,.jpg,.bmp,.webp,.jpeg">
             </div>
             
-            <div class="grid" style="margin-top: 0.8rem;">
+            <div class="grid" style="margin-top: 1rem;">
                 <div class="control-group">
                     <label for="canvasSize">画布尺寸</label>
                     <select id="canvasSize" onchange="updateCanvasSize()">
@@ -445,9 +410,7 @@
                         <option value="sixColor">六色(黑白红黄蓝绿)</option>
                     </select>
                 </div>
-            </div>
-            
-            <div class="grid" style="margin-top: 0.5rem;">
+                
                 <div class="control-group">
                     <label for="ditherType">抖动算法</label>
                     <select id="ditherType" onchange="updateImage(false)">
@@ -458,15 +421,15 @@
                         <option value="jarvis">Jarvis-Judice-Ninke</option>
                     </select>
                 </div>
-                
+            </div>
+            
+            <div class="grid" style="margin-top: 0.5rem;">
                 <div class="control-group">
                     <label for="ditherStrength">抖动强度: <span id="ditherStrengthValue">0.3</span></label>
                     <input type="range" min="0" max="1" step="0.02" value="0.3" id="ditherStrength" 
                            oninput="document.getElementById('ditherStrengthValue').textContent=this.value; updateImage(false)">
                 </div>
-            </div>
-            
-            <div class="grid" style="margin-top: 0.5rem;">
+                
                 <div class="control-group">
                     <label for="brightness">亮度: <span id="brightnessValue">0</span></label>
                     <input type="range" min="-1" max="1" step="0.02" value="0" id="brightness" 
@@ -478,31 +441,100 @@
                     <input type="range" min="0.5" max="2" step="0.02" value="1.2" id="contrast" 
                            oninput="document.getElementById('contrastValue').textContent=this.value; updateImage(false)">
                 </div>
+                
+                <div class="control-group">
+                    <label style="display: flex; align-items: center;">
+                        <input type="checkbox" id="colorCheck" checked oninput="updateImage(false)" style="margin-right: 0.5rem;">
+                        黑白图片填色
+                    </label>
+                </div>
             </div>
             
-            <div class="control-group" style="margin-top: 0.5rem;">
-                <label style="display: flex; align-items: center;">
-                    <input type="checkbox" id="colorCheck" checked oninput="updateImage(false)" style="margin-right: 0.5rem;">
-                    黑白图片填色
-                </label>
+            <div class="control-group debug" style="margin-top: 1rem;">
+                <div class="grid">
+                    <div class="control-group">
+                        <label for="mtusize">MTU大小</label>
+                        <input type="number" id="mtusize" value="20" min="0" max="255">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="interleavedcount">确认间隔</label>
+                        <input type="number" id="interleavedcount" value="50" min="0" max="500">
+                    </div>
+                </div>
             </div>
             
-            <div class="progress-container">
+            <div class="progress-container" style="margin-top: 1.5rem;">
                 <div class="progress-bar" id="progress1"></div>
                 <div class="progress-text" id="progressText">0%</div>
             </div>
             
-            <div style="margin: 0.5rem 0; font-size: 0.85rem;">
+            <div style="margin: 0.5rem 0; font-size: 0.9rem;">
                 <strong>状态：</strong><span id="status">准备就绪</span>
             </div>
             
-            <div class="btn-group" style="margin-top: 0.8rem;">
+            <div class="btn-group" style="margin-top: 1rem;">
                 <button id="clearcanvasbutton" class="btn btn-secondary" onclick="clearCanvas()">清除画布</button>
+                <button id="downloadArray" class="btn btn-secondary debug" onclick="downloadDataArray()">下载数组</button>
                 <button id="sendimgbutton" class="btn btn-primary" onclick="sendimg()">发送图片</button>
             </div>
             
             <div class="canvas-container">
-                <canvas id="canvas" width="300" height="200"></canvas>
+                <canvas id="canvas" width="400" height="300"></canvas>
+                
+                <div class="toolbar">
+                    <div class="tool-section">
+                        <label>绘图工具</label>
+                        <div class="btn-group">
+                            <button id="brush-mode" class="btn btn-secondary" title="画笔">✏️ 画笔</button>
+                            <button id="eraser-mode" class="btn btn-secondary" title="橡皮擦">🧽 橡皮</button>
+                            <button id="text-mode" class="btn btn-secondary" title="添加文字">T 文字</button>
+                        </div>
+                    </div>
+                    
+                    <div class="tool-section">
+                        <label for="brush-color">画笔颜色</label>
+                        <select id="brush-color" class="btn btn-secondary" style="padding: 0.4rem 0.5rem;">
+                            <option value="#000000">黑色</option>
+                            <option value="#FF0000">红色</option>
+                            <option value="#FFFF00">黄色</option>
+                            <option value="#00FF00">绿色</option>
+                            <option value="#0000FF">蓝色</option>
+                            <option value="#FFFFFF">白色</option>
+                        </select>
+                    </div>
+                    
+                    <div class="tool-section">
+                        <label for="brush-size">画笔粗细</label>
+                        <input type="number" id="brush-size" value="2" min="1" max="100" style="width: 60px; padding: 0.4rem;">
+                    </div>
+                </div>
+                
+                <div class="toolbar" style="margin-top: 0.5rem;">
+                    <div class="tool-section">
+                        <label for="font-family">字体</label>
+                        <select id="font-family" style="min-width: 120px;">
+                            <option value="Arial">Arial</option>
+                            <option value="sans-serif">Sans-serif</option>
+                            <option value="monospace">Monospace</option>
+                            <option value="SimSun">宋体</option>
+                            <option value="SimHei">黑体</option>
+                            <option value="Microsoft Yahei">微软雅黑</option>
+                        </select>
+                    </div>
+                    
+                    <div class="tool-section">
+                        <label for="font-size">字号</label>
+                        <input type="number" id="font-size" value="16" min="1" max="100" style="width: 60px;">
+                    </div>
+                    
+                    <div class="tool-section">
+                        <input type="text" id="text-input" placeholder="输入文字" style="flex: 1; min-width: 120px;">
+                        <button id="text-bold" class="btn btn-secondary">B</button>
+                        <button id="text-italic" class="btn btn-secondary">I</button>
+                        <button id="add-text-btn" class="btn btn-primary">添加</button>
+                    </div>
+                </div>
             </div>
         </div>
         
